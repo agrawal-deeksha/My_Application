@@ -87,6 +87,8 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                     User user = new User(name,name1,name2,name3,contact1,contact2,contact3);
                     FirebaseDatabase.getInstance().getReference("Users")
                             .child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(user);
+                    finish();
+                    startActivity(new Intent(SignupActivity.this,HomeActivity.class));
                     Toast.makeText(getApplicationContext(), "you have registered successfully!!", Toast.LENGTH_SHORT).show();
                 } else {
                     if (task.getException() instanceof FirebaseAuthUserCollisionException) {
@@ -107,7 +109,7 @@ public class SignupActivity extends AppCompatActivity implements View.OnClickLis
                 registerUser();
                 break;
             case R.id.textviewlogincall:
-//                startActivity(new Intent(this, MainActivity.class));
+                startActivity(new Intent(this, MainActivity.class));
                 break;
         }
 

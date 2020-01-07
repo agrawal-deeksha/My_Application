@@ -1,23 +1,8 @@
 package com.example.myapplication;
 
-
 import androidx.annotation.NonNull;
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Bundle;
-import android.telephony.SmsManager;
-import android.view.View;
-import android.widget.Button;
-
-
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Patterns;
@@ -26,13 +11,10 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.example.myapplication.R;
-import com.example.myapplication.SignupActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     EditText editemail, editpassword;
@@ -83,27 +65,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 progressBar.setVisibility(View.GONE);
-                if (task.isSuccessful()) {   /*TOAST HTA K NAYI ACTIVITY KO DALNA HAI JO HMARI MAIN ACTIVITY HOGI
-                    Intent intent=new Intent(MainActivity.this,newActivity.this);
+                if (task.isSuccessful()) {
+                    finish();
+                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    */
-                    Toast.makeText(getApplicationContext(), "login hogya", Toast.LENGTH_SHORT).show();
+                    startActivity(intent);
 
                 } else {
                     Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_LONG);
                 }
-
             }
         });
-
     }
+    //user agr logged in he to usko firse login na krane k loe
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+        if (mAuth.getCurrentUser() != null) {
+            finish();
+            startActivity(new Intent(MainActivity.this, HomeActivity.class));
+        }
+    }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.textviewsingupcall:
-                startActivity(new Intent(this, SignupActivity.class));
+                finish();
+                startActivity(new Intent(this, com.example.myapplication.SignupActivity.class));
                 break;
 
             case R.id.loginButton:
@@ -111,7 +101,5 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
         }
-
     }
-
 }
