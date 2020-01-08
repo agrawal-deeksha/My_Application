@@ -12,4 +12,16 @@
         android:layout_centerInParent="true"
         android:id="@+id/send"/>
 
+    <EditText
+        android:id="@+id/editreset"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:visibility="invisible" />
+
+    <EditText
+        android:id="@+id/editresetnew"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:visibility="invisible"
+        android:layout_below="@id/editreset"/>
 </RelativeLayout>

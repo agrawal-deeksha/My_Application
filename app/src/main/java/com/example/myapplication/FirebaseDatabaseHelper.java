@@ -15,7 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 public class FirebaseDatabaseHelper {
     private FirebaseDatabase mDatabase;
     private DatabaseReference mReference;
-    User user;
+    private User user = new User();
 
     public FirebaseDatabaseHelper()
     {
@@ -33,19 +33,11 @@ public class FirebaseDatabaseHelper {
 
     public void extract(final DataStatus dataStatus)
     {
-        mReference.addValueEventListener(new ValueEventListener() {
+        mReference.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot keynode: dataSnapshot.getChildren())
-                {
-                    Log.e(keynode.getKey(),FirebaseAuth.getInstance().getCurrentUser().getUid());
-                    if(keynode.getKey()== FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    {
-                        user = keynode.getValue(User.class);
-                        Log.e("yo","yo");
-                    }
-                }
+                        user = dataSnapshot.getValue(User.class);
+                        Log.e("yo",user.contact1);
             }
 
             @Override
@@ -53,6 +45,7 @@ public class FirebaseDatabaseHelper {
 
             }
         });
+//        Log.e("yo",user.contact1);
         dataStatus.DataIsLoaded(user);
     }
 }
