@@ -6,7 +6,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +33,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.dynamiclinks.DynamicLink;
+import com.google.firebase.dynamiclinks.FirebaseDynamicLinks;
+import com.google.firebase.dynamiclinks.ShortDynamicLink;
 
 public class HomeActivity extends AppCompatActivity implements LocationListener {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -104,13 +106,46 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         return true;
     }
 
-    private void SendMessage(User user)
+    private void SendMessage(final User user)
     {
-        SmsManager smsManager = SmsManager.getDefault();
-        StringBuffer smsBody = new StringBuffer();
-        smsBody.append(Uri.parse(uri));
-        smsBody.append("\n\n\n HELP!");
-        smsManager.sendTextMessage(user.contact1,null,smsBody.toString(),null,null);
+        final SmsManager smsManager = SmsManager.getDefault();
+        final StringBuffer smsBody = new StringBuffer();
+//        smsBody.append(Uri.parse(uri));
+//        smsBody.append("\n\n\n HELP!");
+        final FirebaseUser userr = FirebaseAuth.getInstance().getCurrentUser();
+        String userrr = userr.getUid();
+
+        final String sharelinktext  = "https://womensafetyapp.page.link/?"+
+                "link=https://www.example.com/example.php?user="+userrr+
+                "&apn="+ getPackageName()+
+                "&st="+"My Refer Link"+
+                "&sd="+"Reward Coins 20"+
+                "&si="+"https://www.blueappsoftware.com/logo-1.png";
+
+        final Task<ShortDynamicLink> shortLinkTask = FirebaseDynamicLinks.getInstance().createDynamicLink()
+                //.setLongLink(dynamicLink.getUri())
+                .setLongLink(Uri.parse(sharelinktext))  // manually
+                .buildShortDynamicLink()
+                .addOnCompleteListener(this, new OnCompleteListener<ShortDynamicLink>() {
+                            @Override
+                            public void onComplete(@NonNull Task<ShortDynamicLink> task) {
+                                if (task.isSuccessful()) {
+                                    // Short link created
+                                    Uri shortLink = task.getResult().getShortLink();
+                                    Uri flowchartLink = task.getResult().getPreviewLink();
+                                    Log.e("main ", "short link " + shortLink + "\n text"+sharelinktext);
+                                    smsManager.sendTextMessage(user.contact1,null,shortLink.toString(),null,null);
+                                    // share app dialog
+
+                                } else {
+                                    // Error
+                                    // ...
+                                    Log.e("main", " error " + task.getException());
+                                }
+                            }
+                        });
+
+
 //        smsManager.sendTextMessage(user.contact2,null,smsBody.toString(),null,null);
 //        smsManager.sendTextMessage(user.contact3,null,smsBody.toString(),null,null);
 //        Log.e("SendMessage",uri+"000");
@@ -215,9 +250,17 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
         });
     }
 
+    Double lat,lon;
+
     @Override
     public void onLocationChanged(Location currentLocation) {
         uri = "http://maps.google.com/maps?daddr=" + currentLocation.getLatitude()+","+currentLocation.getLongitude();
+        lat = currentLocation.getLatitude();
+        lon = currentLocation.getLongitude();
+        final FirebaseUser userr = FirebaseAuth.getInstance().getCurrentUser();
+        String userrr = userr.getUid();
+        myRef.child(userrr).child("lat").setValue(""+lat);
+        myRef.child(userrr).child("lon").setValue(""+lon);
 //        Log.e("onLocationChanged",uri);
     }
 
