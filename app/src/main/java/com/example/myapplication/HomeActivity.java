@@ -108,10 +108,6 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
 
     private void SendMessage(final User user)
     {
-        final SmsManager smsManager = SmsManager.getDefault();
-        final StringBuffer smsBody = new StringBuffer();
-//        smsBody.append(Uri.parse(uri));
-//        smsBody.append("\n\n\n HELP!");
         final FirebaseUser userr = FirebaseAuth.getInstance().getCurrentUser();
         String userrr = userr.getUid();
 
@@ -134,12 +130,10 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
                                     Uri shortLink = task.getResult().getShortLink();
                                     Uri flowchartLink = task.getResult().getPreviewLink();
                                     Log.e("main ", "short link " + shortLink + "\n text"+sharelinktext);
-                                    smsManager.sendTextMessage(user.contact1,null,shortLink.toString(),null,null);
+                                    sendMessage(shortLink, user);
                                     // share app dialog
 
                                 } else {
-                                    // Error
-                                    // ...
                                     Log.e("main", " error " + task.getException());
                                 }
                             }
@@ -149,6 +143,14 @@ public class HomeActivity extends AppCompatActivity implements LocationListener 
 //        smsManager.sendTextMessage(user.contact2,null,smsBody.toString(),null,null);
 //        smsManager.sendTextMessage(user.contact3,null,smsBody.toString(),null,null);
 //        Log.e("SendMessage",uri+"000");
+    }
+
+    private void sendMessage(Uri shortLink, User user) {
+        final SmsManager smsManager = SmsManager.getDefault();
+        final StringBuffer smsBody = new StringBuffer();
+        smsBody.append(Uri.parse(uri));
+        smsBody.append("\n\n\n HELP!");
+        smsManager.sendTextMessage(user.contact1,null,shortLink.toString(),null,null);
     }
 
     @Override
