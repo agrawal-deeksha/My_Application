@@ -22,6 +22,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -31,9 +32,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.HashMap;
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
-    private GoogleMap mMap;
+    private GoogleMap mMap,mMap2;
     private String user;
 
     @Override
@@ -46,8 +49,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         String[] userr = uri.split("=");
         user = userr[1];
 
-//        Log.e("maps",user);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -65,9 +66,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+    final HashMap<String, Marker> hashMapMarker= new HashMap<>();
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         mMap = googleMap;
+        mMap2 = googleMap;
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 //        locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER,0,0,this);
 //        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,0,0,this);
@@ -75,9 +78,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onLocationChanged(Location location) {
                 LatLng userlocation = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(userlocation).title("Your Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userlocation, 15));
+                Marker marker = hashMapMarker.get("Your Location");
+                if(marker!=null)
+                marker.remove();
+                hashMapMarker.remove("Your Location");
+                mMap2.moveCamera(CameraUpdateFactory.newLatLngZoom(userlocation, 15));
+                marker = mMap2.addMarker(new MarkerOptions().position(userlocation).title("Your Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                hashMapMarker.put("Your Location",marker);
             }
 
             @Override
@@ -124,9 +131,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     private void setMap(Double lat, Double lon) {
-        mMap.clear();
+//        mMap.clear();
         LatLng sydney = new LatLng(lat, lon);
-        mMap.addMarker(new MarkerOptions().position(sydney));
+        Marker marker = hashMapMarker.get("xyz");
+        if(marker!=null)
+        marker.remove();
+        hashMapMarker.remove("xyz");
+        mMap2.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15));
+        marker = mMap2.addMarker(new MarkerOptions().position(sydney).title("xyz"));
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,15));
+        hashMapMarker.put("xyz",marker);
+
+//        mMap.addMarker(new MarkerOptions().position(sydney).title("xyz"));
+
     }
 }
